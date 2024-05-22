@@ -14,7 +14,7 @@ const placeOrder = async (req,res) => {
       const newOrder = new orderModel({
         userId:req.body.userId,
         items:req.body.items,
-        amount:req.body,amount,
+        amount:req.body.amount,
         address:req.body.address
       })
       await newOrder.save();
@@ -22,7 +22,7 @@ const placeOrder = async (req,res) => {
  
       const line_items = req.body.items.map((item) => ({
           price_data: {
-             currency:"usd",
+             currency:"USD",
              product_data: {
                   name:item.name
              },
@@ -33,7 +33,7 @@ const placeOrder = async (req,res) => {
 
       line_items.push({
         price_data:{
-           currency:"usd",
+           currency:"USD",
            product_data:{
               name:"Delivery Charges"
            },
@@ -55,9 +55,23 @@ const placeOrder = async (req,res) => {
    }catch (error){
         console.log(error);
         res.json({success:false,message:"Error"})
-
    }
-
 }
 
-export {placeOrder}
+ const verifyOrder = async (req,res) => {
+    const {orderId, success} = req.body;
+    try {
+        if (success=="true"){
+            await orderModel.findByIdAndUpdate(orderId,{payment:true});
+            res.json({success:true,message:"Paid"})
+        }
+        else {
+           await orderModel.findByIdAndDelete(orderId);
+           res.json({success:false,message:"Not Paid"})
+        }
+    }catch (error){
+        console.log(error);
+        res.json({success:false,message:"Error"})
+    }
+ }
+export {placeOrder, verifyOrder}
