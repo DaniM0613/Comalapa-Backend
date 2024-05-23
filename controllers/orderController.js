@@ -22,7 +22,7 @@ const placeOrder = async (req,res) => {
  
       const line_items = req.body.items.map((item) => ({
           price_data: {
-             currency:"USD",
+             currency:"GTQ",
              product_data: {
                   name:item.name
              },
@@ -33,7 +33,7 @@ const placeOrder = async (req,res) => {
 
       line_items.push({
         price_data:{
-           currency:"USD",
+           currency:"GTQ",
            product_data:{
               name:"Delivery Charges"
            },
@@ -74,4 +74,28 @@ const placeOrder = async (req,res) => {
         res.json({success:false,message:"Error"})
     }
  }
-export {placeOrder, verifyOrder}
+    
+ // user orders for frontend
+ const userOrders = async (req,res) => {
+    try {
+        const orders = await orderModel.find({userId:req.body.userId})
+        res.json({success:true,data:orders})
+    }catch (error){
+        console.log(error);
+        res.json({success:false,message:"Error"})
+    }
+}
+
+// Listing order for admin panel
+const listOrders = async (req,res) => {
+    try {
+      const orders = await orderModel.find({});
+      res.json({success:true,data:orders})
+    }catch (error){
+       console.log(error);
+       res.json({success:false,message:"Error"})
+    }
+
+}
+
+export {placeOrder, verifyOrder, userOrders,listOrders}
